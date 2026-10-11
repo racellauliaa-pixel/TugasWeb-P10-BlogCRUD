@@ -1,61 +1,146 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tugas Rutin 10 — Blog CRUD Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Blog sederhana pakai Laravel Resource Controller — full CRUD (Create, Read,
+Update, Delete) dengan validasi, flash message, Blade components, route
+model binding, dan pagination.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Route::resource('posts')** — otomatis bikin 7 route standar + nama
+  (`posts.index`, `posts.create`, `posts.store`, `posts.show`,
+  `posts.edit`, `posts.update`, `posts.destroy`)
+- **PostController** sebagai resource controller (7 method: index, create,
+  store, show, edit, update, destroy)
+- **Blade layout master** (`layouts/app.blade.php`) pakai `@extends` /
+  `@yield` di semua halaman
+- **2 Blade component**:
+  - `<x-alert />` — nampilin flash message sukses/gagal + error validasi
+  - `<x-card :post="$post" />` — kartu preview post di halaman daftar
+- **Validasi lengkap** — error per field ditampilkan, input lama nggak
+  hilang kalau validasi gagal (`old()`)
+- **Flash message** sukses/gagal tiap aksi (tambah/update/hapus)
+- **`@csrf`** di semua form + **`@method('PUT')`** / **`@method('DELETE')`**
+  buat form update & hapus
+- **Route Model Binding** — `{post}` di URL otomatis di-resolve jadi object
+  `Post` di Controller
+- **Pagination** — 6 post per halaman
+- **Bonus:**
+  - Pencarian post by judul
+  - Soft delete (post yang dihapus nggak beneran ilang dari database,
+    cuma ditandai `deleted_at`)
+  - Upload gambar untuk tiap post
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Struktur Folder (yang relevan buat tugas ini)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+app/
+├── Http/Controllers/
+│   └── PostController.php     (7 method resource)
+└── Models/
+    └── Post.php                 (pakai SoftDeletes)
 
-## Learning Laravel
+database/
+└── migrations/
+    └── ..._create_posts_table.php
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+resources/views/
+├── layouts/app.blade.php         (layout master, @yield)
+├── components/
+│   ├── alert.blade.php            (komponen 1: flash & error message)
+│   └── card.blade.php              (komponen 2: kartu preview post)
+└── posts/
+    ├── index.blade.php              (daftar + search + pagination)
+    ├── create.blade.php              (form tambah)
+    ├── edit.blade.php                 (form edit, pre-filled)
+    └── show.blade.php                  (detail post)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+routes/
+└── web.php                          (Route::resource)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Cara Menjalankan di Komputer Sendiri
 
-## Contributing
+### 1. Buat Project Laravel Baru
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+composer create-project laravel/laravel tugas-p10-blog-crud
+cd tugas-p10-blog-crud
+```
 
-## Code of Conduct
+(Kalau muncul error soal ekstensi PHP seperti `zip` atau `fileinfo` belum
+aktif, buka `php.ini` kamu dan hapus `;` di depan baris `extension=zip`,
+`extension=fileinfo`, dll — sama kayak waktu TR9.)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Siapkan Database
 
-## Security Vulnerabilities
+```
+mysql -u root -p
+```
+```sql
+CREATE DATABASE db_tugas_p10;
+EXIT;
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Konfigurasi `.env`
 
-## License
+Buka `.env`, ubah bagian `DB_*` jadi:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_tugas_p10
+DB_USERNAME=root
+DB_PASSWORD=isi_password_mysql_kamu
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 4. Hubungkan Folder Upload Gambar
+
+Supaya gambar yang diupload bisa diakses lewat browser, jalankan:
+```
+php artisan storage:link
+```
+(cuma perlu sekali, bikin shortcut dari `public/storage` ke `storage/app/public`)
+
+### 5. Salin File-File dari Tugas Ini
+
+Salin semua file dari folder tugas ini ke project Laravel kamu, sesuai
+struktur folder yang sama (lihat tabel struktur folder di atas):
+
+- `routes/web.php` → timpa yang lama
+- `app/Http/Controllers/PostController.php` → file baru
+- `app/Models/Post.php` → file baru
+- `database/migrations/..._create_posts_table.php` → file baru
+- `resources/views/layouts/app.blade.php` → file baru (bikin folder `layouts` dulu)
+- `resources/views/components/alert.blade.php` → file baru (bikin folder `components` dulu)
+- `resources/views/components/card.blade.php` → file baru
+- `resources/views/posts/index.blade.php` → file baru (bikin folder `posts` dulu)
+- `resources/views/posts/create.blade.php` → file baru
+- `resources/views/posts/edit.blade.php` → file baru
+- `resources/views/posts/show.blade.php` → file baru
+
+### 6. Migrate
+
+```
+php artisan migrate
+```
+
+### 7. Jalankan
+
+```
+php artisan serve
+```
+
+Buka `http://127.0.0.1:8000` — langsung masuk ke daftar post. Coba semua
+fiturnya: tambah post (dengan/tanpa gambar), cari post, edit, hapus.
+
+## Catatan
+
+- Slug dibuat otomatis dari judul (`Str::slug()`) + timestamp, biar unik
+- Gambar lama otomatis dihapus dari storage kalau diganti gambar baru
+  waktu edit post
+- Delete pakai **soft delete** — kalau mau lihat post yang udah "dihapus"
+  masih ada di database (kolom `deleted_at` keisi), itu normal, sesuai
+  requirement bonus
 
 ## Screenshot Aplikasi
 
